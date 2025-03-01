@@ -1,0 +1,116 @@
+-- Abaixo estar Lib da nossa Ui
+
+local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/7yhx/kwargs_Ui_Library/main/source.lua"))()
+
+local UI = Lib:Create{
+    Theme = "Dark", -- ou qualquer outro tema
+    Size = UDim2.new(0, 555, 0, 400) -- padrão
+}
+
+local Main = UI:Tab{
+    Name = "Inicio"
+}
+
+local Divider = Main:Divider{
+    Name = "Inicio shit"
+}
+
+local QuitDivider = Main:Divider{
+    Name = "Sair"
+}
+
+local function createOutline(player, color)
+    local character = player.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        local outline = Instance.new("Part")
+        outline.Size = Vector3.new(2, 2, 2)
+        outline.Anchored = true
+        outline.CanCollide = false
+        outline.Material = Enum.Material.Neon
+        outline.BrickColor = BrickColor.new(color)
+        outline.Parent = workspace
+        
+        outline.Position = character.HumanoidRootPart.Position
+        return outline
+    end
+end
+
+local function updateOutlines()
+    for _, child in ipairs(workspace:GetChildren()) do
+        if child:IsA("Part") and child.Material == Enum.Material.Neon then
+            child:Destroy()
+        end
+    end
+
+    local teamColors = {
+        Hallfwell = BrickColor.new("Bright blue"),
+        Alamont = BrickColor.new("Dark stone grey"),
+        Bergman = BrickColor.new("Brown")
+    }
+
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        local teamName = player.Team and player.Team.Name
+        local color = teamColors[teamName]
+
+        if color then
+            createOutline(player, color)
+        end
+    end
+end
+
+while true do
+    updateOutlines()
+    wait(1)
+end
+
+local player = game.Players.LocalPlayer
+local mouse = player:GetMouse()
+local aimbotEnabled = false
+
+function toggleAimbot()
+    aimbotEnabled = not aimbotEnabled
+end
+
+function adjustAim(target)
+    local distance = (target.Position - player.Character.HumanoidRootPart.Position).magnitude
+    local bulletDrop = 0.1 
+    local aimOffset = bulletDrop * distance
+
+    local aimPosition = target.Position + Vector3.new(0, aimOffset, 0)
+    mouse.Target = aimPosition
+end
+
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if input.KeyCode == Enum.KeyCode.E and not gameProcessedEvent then 
+        toggleAimbot()
+    end
+end)
+
+while true do
+    wait(0.1) 
+    if aimbotEnabled and mouse.Target then
+        adjustAim(mouse.Target)
+    end
+end
+
+local UserInputService = game:GetService("UserInputService")
+
+local isActive = false
+
+local function toggleFeature()
+    isActive = not isActive
+    if isActive then
+        print("Feature activated!")
+    else
+        print("Feature deactivated!")
+    end
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent then
+        if input.KeyCode == Enum.KeyCode.L then
+            toggleFeature()
+        end
+    end
+end
